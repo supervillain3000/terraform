@@ -61,7 +61,7 @@ resource "openstack_compute_keypair_v2" "ed25519" {
 resource "openstack_compute_instance_v2" "ansible_control_node" {
   name            = "control_node"
   flavor_name     = var.flavor_name[0]
-  key_pair        = openstack_compute_keypair_v2.key_pair_ed25519.name
+  key_pair        = openstack_compute_keypair_v2.ed25519.name
   security_groups = [openstack_compute_secgroup_v2.security_group.id]
   config_drive    = true
   depends_on      = [openstack_networking_subnet_v2.subnet]
@@ -79,7 +79,7 @@ resource "openstack_compute_instance_v2" "ansible_control_node" {
     source_type           = "image"
     uuid                  = data.openstack_images_image_v2.image_data.id
     destination_type      = "volume"
-    volume_type           = "ceph-ssd"
+    volume_type           = var.volume_type[0]
     volume_size           = 10
     delete_on_termination = true
   }
@@ -105,7 +105,7 @@ resource "openstack_compute_instance_v2" "alb_node" {
     source_type           = "image"
     uuid                  = data.openstack_images_image_v2.image_data.id
     destination_type      = "volume"
-    volume_type           = "ceph-ssd"
+    volume_type           = var.volume_type[0]
     volume_size           = 10
     delete_on_termination = true
   }
@@ -132,14 +132,14 @@ resource "openstack_compute_instance_v2" "webserver_node" {
     source_type           = "image"
     uuid                  = data.openstack_images_image_v2.image_data.id
     destination_type      = "volume"
-    volume_type           = "ceph-ssd"
+    volume_type           = var.volume_type[0]
     volume_size           = 10
     delete_on_termination = true
   }
 }
 
 resource "openstack_networking_floatingip_v2" "instance_fip" {
-  pool = "FloatingIP Net"
+  pool = var.pool
 }
 
 resource "openstack_compute_floatingip_associate_v2" "instance_fip_association" {

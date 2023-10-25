@@ -9,7 +9,3 @@ output "public_ip" {
 output "flavor" {
   value = openstack_compute_instance_v2.ansible_control_node.flavor_name
 }
-
-output "cidr" {
-  value = openstack_networking_subnet_v2.subnet.cidr
-}
