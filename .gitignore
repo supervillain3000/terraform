@@ -1,6 +1,7 @@
 # Local .terraform directories
 **/.terraform/*
-
+cloud-config/
+inventory/
 # .tfstate files
 *.tfstate
 *.tfstate.*
