@@ -1,0 +1,8 @@
+
+- hosts: webserver
+  roles:
+  - apache2
+
+- hosts: alb
+  roles:
+  - haproxy

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ansible_hostname}}</title>
+    <style>
+        body {
+            background-color: #787878;
+            text-align: center;
+            font-family: "Arial", sans-serif;
+        }
+
+        h1 {
+            color: rgb(255, 225, 55);
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Welcome to {{ ansible_hostname }}</h1>
+    <h2>My IP is {{ ansible_default_ipv4.address }}</h2>
+</body>
+
+</html>

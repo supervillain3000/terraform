@@ -34,7 +34,8 @@ resource "openstack_networking_router_interface_v2" "router_interface" {
 
 resource "openstack_compute_secgroup_v2" "security_group" {
   name        = "sg1"
-  description = "open ssh and http"
+  description = "open ssh, http and icmp"
+
   dynamic "rule" {
     for_each = ["22", "80"]
     content {
@@ -52,23 +53,13 @@ resource "openstack_compute_secgroup_v2" "security_group" {
   }
 }
 
-resource "openstack_compute_keypair_v2" "ed25519" {
-  name       = "ed25519"
-  public_key = file("~/.ssh/id_ed25519.pub")
-}
-
-
 resource "openstack_compute_instance_v2" "ansible_control_node" {
   name            = "control_node"
-  flavor_name     = var.flavor_name[0]
-  key_pair        = openstack_compute_keypair_v2.ed25519.name
+  flavor_name     = var.flavor_name[3]
   security_groups = [openstack_compute_secgroup_v2.security_group.id]
   config_drive    = true
   depends_on      = [openstack_networking_subnet_v2.subnet]
-  user_data       = file("./cloud-config/control.yml")
-  metadata = {
-    role = "controller"
-  }
+  user_data       = templatefile("${path.module}/cloud-config/control.tftpl", { secret = var.secret })
 
   network {
     uuid        = openstack_networking_network_v2.network.id
@@ -91,10 +82,7 @@ resource "openstack_compute_instance_v2" "alb_node" {
   security_groups = [openstack_compute_secgroup_v2.security_group.id]
   config_drive    = true
   depends_on      = [openstack_networking_subnet_v2.subnet]
-  user_data       = file("./cloud-config/managed.yml")
-  metadata = {
-    role = "alb"
-  }
+  user_data       = templatefile("${path.module}/cloud-config/managed.tftpl", { password_hash = var.managed_password_hash })
 
   network {
     uuid        = openstack_networking_network_v2.network.id
@@ -118,10 +106,7 @@ resource "openstack_compute_instance_v2" "webserver_node" {
   security_groups = [openstack_compute_secgroup_v2.security_group.id]
   config_drive    = true
   depends_on      = [openstack_networking_subnet_v2.subnet]
-  user_data       = file("./cloud-config/managed.yml")
-  metadata = {
-    role = "webserver"
-  }
+  user_data       = templatefile("${path.module}/cloud-config/managed.tftpl", { password_hash = var.managed_password_hash })
 
   network {
     uuid        = openstack_networking_network_v2.network.id
