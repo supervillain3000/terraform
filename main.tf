@@ -129,6 +129,6 @@ resource "openstack_networking_floatingip_v2" "instance_fip" {
 
 resource "openstack_compute_floatingip_associate_v2" "instance_fip_association" {
   floating_ip = openstack_networking_floatingip_v2.instance_fip.address
-  instance_id = openstack_compute_instance_v2.ansible_control_node.id
-  fixed_ip    = openstack_compute_instance_v2.ansible_control_node.access_ip_v4
+  instance_id = openstack_compute_instance_v2.alb_node.id
+  fixed_ip    = openstack_compute_instance_v2.alb_node.access_ip_v4
 }
