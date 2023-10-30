@@ -1,8 +1,8 @@
 data "openstack_images_image_v2" "image_data" {
   most_recent = true
   properties = {
-    os_distro  = "centos"
-    os_version = "7.9"
+    #centos9 version in data
+    os_version = "9"
   }
 }
 
@@ -52,27 +52,17 @@ resource "openstack_compute_secgroup_v2" "security_group" {
   }
 }
 
-resource "openstack_compute_keypair_v2" "ed25519" {
-  name       = "ed25519"
-  public_key = file("~/.ssh/id_ed25519.pub")
-}
-
-
 resource "openstack_compute_instance_v2" "ansible_control_node" {
   name            = "control_node"
   flavor_name     = var.flavor_name[0]
-  key_pair        = openstack_compute_keypair_v2.ed25519.name
   security_groups = [openstack_compute_secgroup_v2.security_group.id]
   config_drive    = true
   depends_on      = [openstack_networking_subnet_v2.subnet]
-  user_data       = file("./cloud-config/control.yml")
-  metadata = {
-    role = "controller"
-  }
+  user_data       = templatefile("${path.module}/cloud-config/control.tftpl", { secret = var.secret })
+  tags            = ["control"]
 
   network {
-    uuid        = openstack_networking_network_v2.network.id
-    fixed_ip_v4 = "192.168.10.5"
+    uuid = openstack_networking_network_v2.network.id
   }
 
   block_device {
@@ -91,14 +81,11 @@ resource "openstack_compute_instance_v2" "alb_node" {
   security_groups = [openstack_compute_secgroup_v2.security_group.id]
   config_drive    = true
   depends_on      = [openstack_networking_subnet_v2.subnet]
-  user_data       = file("./cloud-config/managed.yml")
-  metadata = {
-    role = "alb"
-  }
+  user_data       = templatefile("${path.module}/cloud-config/managed.tftpl", { password_hash = var.managed_password_hash })
+  tags            = ["alb"]
 
   network {
-    uuid        = openstack_networking_network_v2.network.id
-    fixed_ip_v4 = "192.168.10.6"
+    uuid = openstack_networking_network_v2.network.id
   }
 
   block_device {
@@ -118,14 +105,11 @@ resource "openstack_compute_instance_v2" "webserver_node" {
   security_groups = [openstack_compute_secgroup_v2.security_group.id]
   config_drive    = true
   depends_on      = [openstack_networking_subnet_v2.subnet]
-  user_data       = file("./cloud-config/managed.yml")
-  metadata = {
-    role = "webserver"
-  }
+  user_data       = templatefile("${path.module}/cloud-config/managed.tftpl", { password_hash = var.managed_password_hash })
+  tags            = ["webserver"]
 
   network {
-    uuid        = openstack_networking_network_v2.network.id
-    fixed_ip_v4 = "192.168.10.${count.index + 10}"
+    uuid = openstack_networking_network_v2.network.id
   }
 
   block_device {
@@ -144,6 +128,6 @@ resource "openstack_networking_floatingip_v2" "instance_fip" {
 
 resource "openstack_compute_floatingip_associate_v2" "instance_fip_association" {
   floating_ip = openstack_networking_floatingip_v2.instance_fip.address
-  instance_id = openstack_compute_instance_v2.ansible_control_node.id
-  fixed_ip    = openstack_compute_instance_v2.ansible_control_node.access_ip_v4
+  instance_id = openstack_compute_instance_v2.alb_node.id
+  fixed_ip    = openstack_compute_instance_v2.alb_node.access_ip_v4
 }

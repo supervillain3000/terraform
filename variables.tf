@@ -28,3 +28,14 @@ variable "volume_type" {
     "kz-ala-1-san-nvme-h1"
   ]
 }
+
+variable "secret" {
+  type      = string
+  sensitive = true
+}
+
+variable "managed_password_hash" {
+  type      = string
+  sensitive = true
+}
+

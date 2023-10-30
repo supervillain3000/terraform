@@ -1,0 +1,9 @@
+plugin: openstack.cloud.openstack
+fail_on_errors: true
+private: true
+legacy_groups: false
+strict: true
+
+keyed_groups:
+- key: openstack.tags
+  separator: ""

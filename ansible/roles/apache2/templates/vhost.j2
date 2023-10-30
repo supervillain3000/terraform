@@ -1,0 +1,12 @@
+<VirtualHost *:80>
+	ServerName "{{ ansible_hostname }}.test"
+	DocumentRoot "/opt/html"
+	ErrorLog "/var/log/httpd/{{ ansible_hostname }}_error.log"
+	DirectoryIndex "index.html" "index.php" 
+
+	<Directory /opt/html>
+		Options -Indexes +FollowSymLinks
+		AllowOverride All
+	</Directory>
+
+</VirtualHost>

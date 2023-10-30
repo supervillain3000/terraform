@@ -1,0 +1,13 @@
+#cloud-config
+ssh_pwauth: true
+system_info:
+  default_user:
+    name: ansible
+    gecos: ansible-controller
+    selinux-user: staff_u
+    shell: /bin/bash
+    groups: wheel
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    lock_passwd: false
+    passwd: ${password_hash}
+
