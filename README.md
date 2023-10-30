@@ -1,4 +1,4 @@
-# Terraform + Ansible with static inventory
+# Terraform + Ansible with dynamic inventory in OpenStack
 
 Creates any desired number of web servers and runs Ansible roles for configuration using a dynamic inventory.
 
