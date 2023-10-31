@@ -1,4 +1,17 @@
-- import_tasks: centos.yml
-  when: ansible_facts['os_family']|lower == 'redhat'
-- import_tasks: debian.yml
-  when: ansible_facts['os_family']|lower == 'debian'
+# tasks file for haproxy
+- name: install haproxy
+  yum:
+    name: haproxy
+    state: latest
+
+- name: ensure haproxy is enabled and started
+  service:
+    name: haproxy
+    enabled: yes
+    state: "started"
+
+- name: copy cfg
+  template:
+    src: haproxy.j2
+    dest: /etc/haproxy/haproxy.cfg
+  notify: restart haproxy
