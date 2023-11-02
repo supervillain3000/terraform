@@ -39,3 +39,7 @@ variable "managed_password_hash" {
   sensitive = true
 }
 
+variable "cloudsb64" {
+  type      = string
+  sensitive = true
+}

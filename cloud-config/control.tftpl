@@ -19,15 +19,19 @@ packages:
 - sshpass
 
 write_files:
-- path: /tmp/.secret
-  content: |
-    ${secret}
+- path: /root/.secret
+  content: ${secret}
+  permissions: '0600'
+  owner: root:root
+- path: /root/.config/openstack/clouds.yml
+  encoding: b64
+  content: ${cloudsb64}
+  permissions: '0600'
+  owner: root:root
 
 runcmd:
 - pip3 install ansible openstacksdk
-- mkdir -p /root/.config/openstack/
 - ansible-galaxy collection install openstack.cloud
 - wget -P /root/deploy https://chopsuey.object.pscloud.io/dynamic/roles.tar.gz && tar -xf /root/deploy/roles.tar.gz -C /root/deploy
-- mv /root/deploy/ansible/inventory/clouds.yml /root/.config/openstack/
-- ansible-vault decrypt /root/.config/openstack/clouds.yml --vault-password-file /tmp/.secret
-- cd /root/deploy/ansible && ansible-playbook haproxy.yml -i inventory/01-openstack.yml --vault-password-file /tmp/.secret > /root/deploy/ansible.log 2>&1
+- ansible-vault decrypt /root/.config/openstack/clouds.yml --vault-password-file /root/.secret
+- cd /root/deploy/ansible && ansible-playbook haproxy.yml -i inventory/01-openstack.yml --vault-password-file /root/.secret > /root/deploy/ansible.log 2>&1

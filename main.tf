@@ -54,11 +54,11 @@ resource "openstack_compute_secgroup_v2" "security_group" {
 
 resource "openstack_compute_instance_v2" "ansible_control_node" {
   name            = "control_node"
-  flavor_name     = var.flavor_name[0]
+  flavor_name     = var.flavor_name[1]
   security_groups = [openstack_compute_secgroup_v2.security_group.id]
   config_drive    = true
   depends_on      = [openstack_networking_subnet_v2.subnet]
-  user_data       = templatefile("${path.module}/cloud-config/control.tftpl", { secret = var.secret })
+  user_data       = templatefile("${path.module}/cloud-config/control.tftpl", { secret = var.secret, cloudsb64 = var.cloudsb64 })
   tags            = ["control"]
 
   network {
