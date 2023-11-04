@@ -6,6 +6,10 @@ data "openstack_images_image_v2" "image_data" {
   }
 }
 
+data "openstack_networking_network_v2" "external_network" {
+  name = "FloatingIP Net"
+}
+
 resource "openstack_networking_network_v2" "network" {
   name           = "network"
   admin_state_up = true
@@ -14,7 +18,7 @@ resource "openstack_networking_network_v2" "network" {
 resource "openstack_networking_subnet_v2" "subnet" {
   name        = "subnet"
   network_id  = openstack_networking_network_v2.network.id
-  cidr        = var.cidr[0]
+  cidr        = "192.168.10.0/24"
   ip_version  = 4
   enable_dhcp = true
   depends_on  = [openstack_networking_network_v2.network]
@@ -23,7 +27,7 @@ resource "openstack_networking_subnet_v2" "subnet" {
 resource "openstack_networking_router_v2" "router" {
   name                = "router"
   admin_state_up      = true
-  external_network_id = var.external_network_id
+  external_network_id = data.openstack_networking_network_v2.external_network.id
 }
 
 resource "openstack_networking_router_interface_v2" "router_interface" {
@@ -122,12 +126,12 @@ resource "openstack_compute_instance_v2" "webserver_node" {
   }
 }
 
-resource "openstack_networking_floatingip_v2" "instance_fip" {
-  pool = var.pool
+resource "openstack_networking_floatingip_v2" "fip" {
+  pool = data.openstack_networking_network_v2.external_network.name
 }
 
-resource "openstack_compute_floatingip_associate_v2" "instance_fip_association" {
-  floating_ip = openstack_networking_floatingip_v2.instance_fip.address
+resource "openstack_compute_floatingip_associate_v2" "fip_association" {
+  floating_ip = openstack_networking_floatingip_v2.fip.address
   instance_id = openstack_compute_instance_v2.alb_node.id
   fixed_ip    = openstack_compute_instance_v2.alb_node.access_ip_v4
 }

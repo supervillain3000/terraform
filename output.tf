@@ -3,5 +3,5 @@ output "image" {
 }
 
 output "public_ip" {
-  value = openstack_networking_floatingip_v2.instance_fip.address
+  value = openstack_networking_floatingip_v2.fip.address
 }
