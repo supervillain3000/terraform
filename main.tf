@@ -1,7 +1,7 @@
 data "openstack_images_image_v2" "image_data" {
   most_recent = true
   properties = {
-    #centos9 version in data
+    os_distro  = "centos-stream"
     os_version = "9"
   }
 }
